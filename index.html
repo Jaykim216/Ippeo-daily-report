@@ -125,7 +125,7 @@ textarea::placeholder,input::placeholder{color:#C0CDD8;font-size:12px;}
     <div class="nav-tab active" onclick="switchTab('team')" id="tab-team">팀원 입력</div>
     <div class="nav-tab" onclick="switchTab('manager')" id="tab-manager">관리자</div>
     <div class="nav-tab" onclick="switchTab('analytics')" id="tab-analytics">KPI 추이</div>
-    <div class="nav-tab" onclick="switchTab('settings')" id="tab-settings">설정</div>
+    <div class="nav-tab" onclick="switchTab('settings')" id="tab-settings" style="display:none;">설정</div>
   </div>
   <div class="date-chip" id="dateChip"></div>
 </nav>
@@ -299,7 +299,12 @@ textarea::placeholder,input::placeholder{color:#C0CDD8;font-size:12px;}
 // ═══════════════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════════════
-let SCRIPT_URL = localStorage.getItem('scriptUrl') || '';
+const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbRVOCv_kR-jT9N9NVajdIeIyyiAxGQqjAxzWOaHRc9DLdwmR90Q5T93qkq5teRAex/exec';
+let SCRIPT_URL = DEFAULT_SCRIPT_URL;
+// 설정 탭에서 변경한 경우만 localStorage 사용
+if (localStorage.getItem('scriptUrl') && !localStorage.getItem('scriptUrl').includes('github.io')) {
+  SCRIPT_URL = localStorage.getItem('scriptUrl');
+}
 let settings   = JSON.parse(localStorage.getItem('reportSettings') || '{}');
 
 // 앱 로드 시 URL 입력란 채우기
@@ -326,10 +331,10 @@ function switchTab(tab) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('page-'+tab).classList.add('active');
-  if(tab==='manager')   loadSubmissions();
+  if(tab==='manager')   { loadSubmissions(); document.getElementById('tab-settings').style.display=''; }
   if(tab==='analytics') { loadKPIHistory(); }
   if(tab==='settings')  renderSettings();
-  if(tab==='team')      showConnBanner('connBannerTeam');
+  if(tab==='team')      { showConnBanner('connBannerTeam'); document.getElementById('tab-settings').style.display='none'; }
 }
 function switchAnalytics(sub) {
   document.querySelectorAll('[id^="atab-"]').forEach(t=>t.classList.remove('active'));
