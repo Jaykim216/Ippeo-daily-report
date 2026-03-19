@@ -376,11 +376,13 @@ async function gasGet(params) {
 
 async function gasPost(body) {
   if (!SCRIPT_URL) throw new Error('Apps Script URL이 설정되지 않았습니다.');
-  const res  = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
+  // POST 대신 GET 방식으로 전송 (CORS 우회)
+  const action = body.action;
+  const params = { action };
+  if (body.data)  params.data  = encodeURIComponent(JSON.stringify(body.data));
+  if (body.name)  params.name  = body.name;
+  const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString();
+  const res  = await fetch(url);
   const data = await res.json();
   if (data.error) throw new Error(data.error);
   return data;
